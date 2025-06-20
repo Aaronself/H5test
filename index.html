@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
     <title>实时烟花燃放</title>
     
     <!-- 微信分享优化 -->
@@ -39,23 +39,37 @@
             touch-action: manipulation;
         }
 
-        .header {
+        /* 顶部区域 - 包含标题和分享按钮 */
+        .top-section {
             position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 0;
+            left: 0;
+            right: 0;
             z-index: 100;
-            color: #fff;
+            padding: 15px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .top-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            flex: 1;
             text-align: center;
-            width: 90%;
-            max-width: 600px;
+            color: #fff;
         }
 
         .header h1 {
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
             font-weight: bold;
             text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4d9de0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -69,38 +83,72 @@
         }
 
         .subtitle {
-            font-size: clamp(0.8rem, 2vw, 1rem);
+            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
             color: #ccc;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
+        /* 分享按钮 - 移到顶部右侧 */
+        .share-btn {
+            width: clamp(45px, 10vw, 55px);
+            height: clamp(45px, 10vw, 55px);
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+            margin-left: 15px;
+        }
+
+        .share-btn:hover, .share-btn:active {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 6px 20px rgba(255, 154, 158, 0.4);
+        }
+
+        /* Canvas 区域 */
         #fireworksCanvas {
             display: block;
             background: transparent;
             cursor: crosshair;
             touch-action: none;
+            width: 100%;
+            height: 100%;
         }
 
+        /* 底部控制区域 */
         .controls {
             position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 0;
+            left: 0;
+            right: 0;
             z-index: 100;
+            padding: 20px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.4) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .controls-content {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
-            flex-wrap: wrap;
             justify-content: center;
-            width: 90%;
-            max-width: 600px;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: clamp(10px, 2.5vw, 14px) clamp(20px, 5vw, 28px);
             border: none;
             border-radius: 50px;
-            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-size: clamp(0.8rem, 2.2vw, 1rem);
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -108,7 +156,7 @@
             letter-spacing: 1px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             white-space: nowrap;
-            min-width: 120px;
+            min-width: clamp(100px, 20vw, 130px);
         }
 
         .btn-primary {
@@ -131,45 +179,25 @@
             box-shadow: 0 6px 20px rgba(77, 157, 224, 0.4);
         }
 
-        .share-btn {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            z-index: 100;
-            width: clamp(50px, 8vw, 60px);
-            height: clamp(50px, 8vw, 60px);
-            border-radius: 50%;
-            background: linear-gradient(45deg, #ff9a9e, #fecfef);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: clamp(1.2rem, 3vw, 1.5rem);
-            color: white;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .share-btn:hover, .share-btn:active {
-            transform: scale(1.1) rotate(10deg);
-            box-shadow: 0 6px 20px rgba(255, 154, 158, 0.4);
-        }
-
+        /* 自动模式开关 */
         .auto-mode {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: white;
-            font-size: clamp(0.8rem, 2vw, 1rem);
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
             white-space: nowrap;
+            background: rgba(255, 255, 255, 0.1);
+            padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 16px);
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
         }
 
         .switch {
             position: relative;
-            width: 50px;
-            height: 25px;
-            background: #ccc;
+            width: clamp(40px, 8vw, 50px);
+            height: clamp(20px, 4vw, 25px);
+            background: #666;
             border-radius: 15px;
             cursor: pointer;
             transition: background 0.3s;
@@ -185,17 +213,18 @@
             position: absolute;
             top: 2px;
             left: 2px;
-            width: 21px;
-            height: 21px;
+            width: clamp(16px, 3.2vw, 21px);
+            height: clamp(16px, 3.2vw, 21px);
             background: white;
             border-radius: 50%;
             transition: transform 0.3s;
         }
 
         .switch.active::after {
-            transform: translateX(25px);
+            transform: translateX(clamp(20px, 4vw, 25px));
         }
 
+        /* 提示框 */
         .toast {
             position: fixed;
             top: 50%;
@@ -205,12 +234,13 @@
             color: white;
             padding: 15px 30px;
             border-radius: 10px;
-            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s ease;
             max-width: 80%;
             text-align: center;
+            backdrop-filter: blur(10px);
         }
 
         .toast.show {
@@ -225,120 +255,165 @@
             visibility: hidden;
         }
 
-        /* 移动端优化 */
+        /* 手机端优化 */
         @media (max-width: 768px) {
-            .header {
-                top: 15px;
-                width: 95%;
+            .top-section {
+                padding: 10px 15px;
             }
             
-            .controls {
-                bottom: 20px;
+            .top-content {
                 flex-direction: column;
-                gap: 12px;
-                width: 95%;
+                align-items: center;
+                gap: 10px;
             }
             
-            .btn {
-                padding: 10px 20px;
-                min-width: 100px;
+            .header {
+                order: 1;
             }
             
             .share-btn {
-                bottom: 20px;
-                right: 20px;
+                order: 0;
+                margin-left: 0;
+                align-self: flex-end;
+            }
+            
+            .controls {
+                padding: 15px;
+            }
+            
+            .controls-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 280px;
             }
             
             .auto-mode {
-                order: -1;
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
             }
         }
 
         /* 超小屏幕优化 */
         @media (max-width: 480px) {
-            .header {
-                top: 10px;
+            .top-section {
+                padding: 8px 12px;
             }
             
             .controls {
-                bottom: 15px;
-                gap: 10px;
+                padding: 12px;
             }
             
-            .share-btn {
-                bottom: 15px;
-                right: 15px;
+            .header h1 {
+                margin-bottom: 3px;
             }
         }
 
         /* 横屏优化 */
         @media (orientation: landscape) and (max-height: 600px) {
-            .header {
-                top: 10px;
+            .top-section {
+                padding: 8px 15px;
             }
             
             .header h1 {
-                font-size: clamp(1.5rem, 3vh, 2rem);
-                margin-bottom: 5px;
+                font-size: clamp(1.2rem, 4vh, 1.8rem);
+                margin-bottom: 3px;
             }
             
             .subtitle {
-                font-size: clamp(0.7rem, 1.5vh, 0.9rem);
+                font-size: clamp(0.6rem, 2vh, 0.8rem);
             }
             
             .controls {
-                bottom: 15px;
+                padding: 12px 20px;
+            }
+            
+            .controls-content {
                 flex-direction: row;
-                gap: 10px;
+                gap: 8px;
             }
             
             .btn {
                 padding: 8px 16px;
-                font-size: clamp(0.8rem, 1.5vh, 1rem);
-                min-width: 80px;
+                font-size: clamp(0.7rem, 2vh, 0.9rem);
+                min-width: clamp(80px, 15vw, 110px);
+            }
+            
+            .auto-mode {
+                padding: 6px 12px;
+                font-size: clamp(0.6rem, 1.8vh, 0.8rem);
             }
         }
 
         /* 大屏幕优化 */
         @media (min-width: 1200px) {
+            .top-section {
+                padding: 25px 30px;
+            }
+            
             .header h1 {
-                font-size: 3rem;
+                font-size: 2.8rem;
             }
             
             .subtitle {
-                font-size: 1.2rem;
+                font-size: 1.1rem;
+            }
+            
+            .controls {
+                padding: 30px;
             }
             
             .btn {
                 padding: 18px 36px;
-                font-size: 1.2rem;
-                min-width: 150px;
+                font-size: 1.1rem;
+                min-width: 160px;
             }
+        }
+
+        /* 防止页面滚动 */
+        html, body {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>实时烟花燃放</h1>
-        <p class="subtitle">点击屏幕或按钮来燃放烟花</p>
+    <!-- 顶部区域：标题和分享按钮 -->
+    <div class="top-section">
+        <div class="top-content">
+            <div class="header">
+                <h1>实时烟花燃放</h1>
+                <p class="subtitle">点击屏幕或按钮来燃放烟花</p>
+            </div>
+            <button class="share-btn" id="shareBtn" title="分享到微信">
+                📤
+            </button>
+        </div>
     </div>
 
+    <!-- Canvas 画布 -->
     <canvas id="fireworksCanvas"></canvas>
     <canvas id="previewCanvas" width="1200" height="630"></canvas>
 
+    <!-- 底部控制区域 -->
     <div class="controls">
-        <button class="btn btn-primary" id="launchBtn">燃放烟花</button>
-        <div class="auto-mode">
-            <span>自动模式</span>
-            <div class="switch" id="autoSwitch"></div>
+        <div class="controls-content">
+            <button class="btn btn-primary" id="launchBtn">燃放烟花</button>
+            <div class="auto-mode">
+                <span>自动模式</span>
+                <div class="switch" id="autoSwitch"></div>
+            </div>
+            <button class="btn btn-secondary" id="clearBtn">清空画面</button>
         </div>
-        <button class="btn btn-secondary" id="clearBtn">清空画面</button>
     </div>
 
-    <button class="share-btn" id="shareBtn" title="分享到微信">
-        📤
-    </button>
-
+    <!-- 提示框 -->
     <div class="toast" id="toast"></div>
 
     <script>
@@ -674,7 +749,7 @@
                     targetX = Math.random() * this.canvas.width;
                 }
                 if (targetY === null) {
-                    targetY = Math.random() * this.canvas.height * 0.6 + 50;
+                    targetY = Math.random() * this.canvas.height * 0.6 + 100;
                 }
                 
                 const startX = Math.random() * this.canvas.width;
@@ -931,7 +1006,7 @@
             initWeChatSDK();
         }
 
-        // 防止页面缩放
+        // 防止页面缩放和滚动
         document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
         });
@@ -943,6 +1018,20 @@
         document.addEventListener('gestureend', function(e) {
             e.preventDefault();
         });
+        
+        document.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+        
+        // 防止双击缩放
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     </script>
 </body>
 </html>
