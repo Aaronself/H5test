@@ -2,14 +2,32 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>实时烟花燃放</title>
+    
+    <!-- 微信分享优化 -->
+    <meta property="og:title" content="实时烟花燃放">
+    <meta property="og:description" content="一起来欣赏美丽的烟花吧！点击屏幕燃放烟花">
+    <meta property="og:image" content="" id="shareImage">
+    <meta property="og:url" content="">
+    <meta property="og:type" content="website">
+    
+    <!-- 微信专用分享标签 -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="实时烟花燃放">
+    <meta name="twitter:description" content="一起来欣赏美丽的烟花吧！点击屏幕燃放烟花">
+    <meta name="twitter:image" content="" id="twitterImage">
+    
     <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         body {
@@ -18,6 +36,7 @@
             overflow: hidden;
             height: 100vh;
             position: relative;
+            touch-action: manipulation;
         }
 
         .header {
@@ -28,10 +47,12 @@
             z-index: 100;
             color: #fff;
             text-align: center;
+            width: 90%;
+            max-width: 600px;
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             font-weight: bold;
             text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
             margin-bottom: 10px;
@@ -48,7 +69,7 @@
         }
 
         .subtitle {
-            font-size: 1rem;
+            font-size: clamp(0.8rem, 2vw, 1rem);
             color: #ccc;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
@@ -57,6 +78,7 @@
             display: block;
             background: transparent;
             cursor: crosshair;
+            touch-action: none;
         }
 
         .controls {
@@ -66,21 +88,27 @@
             transform: translateX(-50%);
             z-index: 100;
             display: flex;
-            gap: 20px;
+            gap: 15px;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 90%;
+            max-width: 600px;
         }
 
         .btn {
-            padding: 15px 30px;
+            padding: 12px 24px;
             border: none;
             border-radius: 50px;
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+            min-width: 120px;
         }
 
         .btn-primary {
@@ -88,7 +116,7 @@
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover, .btn-primary:active {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
         }
@@ -98,7 +126,7 @@
             color: white;
         }
 
-        .btn-secondary:hover {
+        .btn-secondary:hover, .btn-secondary:active {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(77, 157, 224, 0.4);
         }
@@ -108,8 +136,8 @@
             bottom: 30px;
             right: 30px;
             z-index: 100;
-            width: 60px;
-            height: 60px;
+            width: clamp(50px, 8vw, 60px);
+            height: clamp(50px, 8vw, 60px);
             border-radius: 50%;
             background: linear-gradient(45deg, #ff9a9e, #fecfef);
             border: none;
@@ -117,13 +145,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
             color: white;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .share-btn:hover {
+        .share-btn:hover, .share-btn:active {
             transform: scale(1.1) rotate(10deg);
             box-shadow: 0 6px 20px rgba(255, 154, 158, 0.4);
         }
@@ -133,17 +161,19 @@
             align-items: center;
             gap: 10px;
             color: white;
-            font-size: 1rem;
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            white-space: nowrap;
         }
 
         .switch {
             position: relative;
-            width: 60px;
-            height: 30px;
+            width: 50px;
+            height: 25px;
             background: #ccc;
             border-radius: 15px;
             cursor: pointer;
             transition: background 0.3s;
+            flex-shrink: 0;
         }
 
         .switch.active {
@@ -153,17 +183,17 @@
         .switch::after {
             content: '';
             position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 24px;
-            height: 24px;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
             background: white;
             border-radius: 50%;
             transition: transform 0.3s;
         }
 
         .switch.active::after {
-            transform: translateX(30px);
+            transform: translateX(25px);
         }
 
         .toast {
@@ -173,31 +203,116 @@
             transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 20px 40px;
+            padding: 15px 30px;
             border-radius: 10px;
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s ease;
+            max-width: 80%;
+            text-align: center;
         }
 
         .toast.show {
             opacity: 1;
         }
 
+        /* 隐藏的预览图生成画布 */
+        #previewCanvas {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            visibility: hidden;
+        }
+
+        /* 移动端优化 */
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
+            .header {
+                top: 15px;
+                width: 95%;
             }
             
             .controls {
+                bottom: 20px;
                 flex-direction: column;
-                gap: 15px;
+                gap: 12px;
+                width: 95%;
             }
             
             .btn {
-                padding: 12px 25px;
-                font-size: 1rem;
+                padding: 10px 20px;
+                min-width: 100px;
+            }
+            
+            .share-btn {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .auto-mode {
+                order: -1;
+            }
+        }
+
+        /* 超小屏幕优化 */
+        @media (max-width: 480px) {
+            .header {
+                top: 10px;
+            }
+            
+            .controls {
+                bottom: 15px;
+                gap: 10px;
+            }
+            
+            .share-btn {
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+
+        /* 横屏优化 */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .header {
+                top: 10px;
+            }
+            
+            .header h1 {
+                font-size: clamp(1.5rem, 3vh, 2rem);
+                margin-bottom: 5px;
+            }
+            
+            .subtitle {
+                font-size: clamp(0.7rem, 1.5vh, 0.9rem);
+            }
+            
+            .controls {
+                bottom: 15px;
+                flex-direction: row;
+                gap: 10px;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: clamp(0.8rem, 1.5vh, 1rem);
+                min-width: 80px;
+            }
+        }
+
+        /* 大屏幕优化 */
+        @media (min-width: 1200px) {
+            .header h1 {
+                font-size: 3rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                padding: 18px 36px;
+                font-size: 1.2rem;
+                min-width: 150px;
             }
         }
     </style>
@@ -209,6 +324,7 @@
     </div>
 
     <canvas id="fireworksCanvas"></canvas>
+    <canvas id="previewCanvas" width="1200" height="630"></canvas>
 
     <div class="controls">
         <button class="btn btn-primary" id="launchBtn">燃放烟花</button>
@@ -234,36 +350,27 @@
                 this.color = color;
                 this.velocity = velocity;
                 this.gravity = gravity;
-                this.life = 1.0; // 生命值，从1到0
-                this.decay = Math.random() * 0.02 + 0.01; // 衰减速度
-                this.size = Math.random() * 3 + 1; // 粒子大小
-                this.trail = []; // 拖尾效果
+                this.life = 1.0;
+                this.decay = Math.random() * 0.02 + 0.01;
+                this.size = Math.random() * 3 + 1;
+                this.trail = [];
             }
 
             update() {
-                // 保存轨迹用于拖尾效果
                 this.trail.push({ x: this.x, y: this.y, life: this.life });
                 if (this.trail.length > 10) {
                     this.trail.shift();
                 }
 
-                // 更新位置
                 this.x += this.velocity.x;
                 this.y += this.velocity.y;
-                
-                // 应用重力
                 this.velocity.y += this.gravity;
-                
-                // 应用空气阻力
                 this.velocity.x *= 0.99;
                 this.velocity.y *= 0.99;
-                
-                // 减少生命值
                 this.life -= this.decay;
             }
 
             draw(ctx) {
-                // 绘制拖尾
                 this.trail.forEach((point, index) => {
                     const alpha = (point.life * index) / this.trail.length;
                     ctx.save();
@@ -275,7 +382,6 @@
                     ctx.restore();
                 });
 
-                // 绘制主粒子
                 ctx.save();
                 ctx.globalAlpha = this.life;
                 ctx.fillStyle = this.color;
@@ -303,7 +409,6 @@
                 this.exploded = false;
                 this.particles = [];
                 
-                // 计算发射速度
                 const distance = Math.sqrt((targetX - x) ** 2 + (targetY - y) ** 2);
                 const speed = distance * 0.02;
                 this.velocity = {
@@ -316,23 +421,19 @@
 
             update() {
                 if (!this.exploded) {
-                    // 保存轨迹
                     this.trail.push({ x: this.x, y: this.y });
                     if (this.trail.length > 20) {
                         this.trail.shift();
                     }
 
-                    // 更新位置
                     this.x += this.velocity.x;
                     this.y += this.velocity.y;
                     
-                    // 检查是否到达目标位置
                     const distance = Math.sqrt((this.targetX - this.x) ** 2 + (this.targetY - this.y) ** 2);
                     if (distance < 20) {
                         this.explode();
                     }
                 } else {
-                    // 更新爆炸粒子
                     this.particles = this.particles.filter(particle => {
                         particle.update();
                         return !particle.isDead();
@@ -342,9 +443,8 @@
 
             explode() {
                 this.exploded = true;
-                const particleCount = Math.random() * 50 + 50; // 50-100个粒子
+                const particleCount = Math.random() * 50 + 50;
                 
-                // 生成多种爆炸模式
                 const patterns = ['circle', 'heart', 'star', 'spiral'];
                 const pattern = patterns[Math.floor(Math.random() * patterns.length)];
                 
@@ -382,7 +482,6 @@
                         y: Math.sin(angle) * speed
                     };
                     
-                    // 生成渐变色彩
                     const colors = [
                         this.color,
                         `hsl(${Math.random() * 360}, 100%, 60%)`,
@@ -402,7 +501,6 @@
 
             draw(ctx) {
                 if (!this.exploded) {
-                    // 绘制发射轨迹
                     ctx.save();
                     ctx.strokeStyle = this.color;
                     ctx.lineWidth = 3;
@@ -421,7 +519,6 @@
                     ctx.stroke();
                     ctx.restore();
                     
-                    // 绘制火箭头部
                     ctx.save();
                     ctx.fillStyle = this.color;
                     ctx.shadowBlur = 20;
@@ -431,13 +528,99 @@
                     ctx.fill();
                     ctx.restore();
                 } else {
-                    // 绘制爆炸粒子
                     this.particles.forEach(particle => particle.draw(ctx));
                 }
             }
 
             isDead() {
                 return this.exploded && this.particles.length === 0;
+            }
+        }
+
+        // 预览图生成器
+        class PreviewGenerator {
+            constructor() {
+                this.canvas = document.getElementById('previewCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.fireworks = [];
+            }
+
+            generatePreview() {
+                return new Promise((resolve) => {
+                    // 清空画布
+                    this.ctx.fillStyle = 'linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                    
+                    // 创建渐变背景
+                    const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+                    gradient.addColorStop(0, '#0c0c0c');
+                    gradient.addColorStop(0.5, '#1a1a2e');
+                    gradient.addColorStop(1, '#16213e');
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                    
+                    // 添加标题
+                    this.ctx.save();
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.font = 'bold 60px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.shadowBlur = 20;
+                    this.ctx.shadowColor = '#ffffff';
+                    this.ctx.fillText('实时烟花燃放', this.canvas.width / 2, 100);
+                    
+                    this.ctx.font = '30px Arial';
+                    this.ctx.fillStyle = '#cccccc';
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.fillText('点击屏幕燃放烟花', this.canvas.width / 2, 150);
+                    this.ctx.restore();
+                    
+                    // 生成几个静态烟花效果
+                    this.generateStaticFireworks();
+                    
+                    // 转换为图片
+                    setTimeout(() => {
+                        const dataURL = this.canvas.toDataURL('image/jpeg', 0.8);
+                        resolve(dataURL);
+                    }, 100);
+                });
+            }
+
+            generateStaticFireworks() {
+                const colors = ['#ff6b6b', '#ffd93d', '#6bcf7f', '#4d9de0', '#ff9a9e'];
+                const positions = [
+                    { x: 300, y: 300 },
+                    { x: 600, y: 250 },
+                    { x: 900, y: 350 },
+                    { x: 450, y: 400 },
+                    { x: 750, y: 450 }
+                ];
+                
+                positions.forEach((pos, index) => {
+                    const color = colors[index % colors.length];
+                    this.drawStaticFirework(pos.x, pos.y, color);
+                });
+            }
+
+            drawStaticFirework(centerX, centerY, color) {
+                const particleCount = 30;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const angle = (Math.PI * 2 * i) / particleCount;
+                    const distance = Math.random() * 80 + 40;
+                    const x = centerX + Math.cos(angle) * distance;
+                    const y = centerY + Math.sin(angle) * distance;
+                    const size = Math.random() * 4 + 2;
+                    
+                    this.ctx.save();
+                    this.ctx.fillStyle = color;
+                    this.ctx.shadowBlur = 15;
+                    this.ctx.shadowColor = color;
+                    this.ctx.globalAlpha = Math.random() * 0.8 + 0.2;
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.restore();
+                }
             }
         }
 
@@ -452,9 +635,16 @@
                 
                 this.resizeCanvas();
                 window.addEventListener('resize', () => this.resizeCanvas());
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(() => this.resizeCanvas(), 100);
+                });
                 
                 // 绑定事件
                 this.canvas.addEventListener('click', (e) => this.handleClick(e));
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.handleTouch(e);
+                }, { passive: false });
                 
                 this.animate();
             }
@@ -471,8 +661,15 @@
                 this.launchFirework(x, y);
             }
 
+            handleTouch(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                this.launchFirework(x, y);
+            }
+
             launchFirework(targetX = null, targetY = null) {
-                // 如果没有指定目标位置，随机生成
                 if (targetX === null) {
                     targetX = Math.random() * this.canvas.width;
                 }
@@ -480,11 +677,9 @@
                     targetY = Math.random() * this.canvas.height * 0.6 + 50;
                 }
                 
-                // 从底部随机位置发射
                 const startX = Math.random() * this.canvas.width;
                 const startY = this.canvas.height;
                 
-                // 生成随机颜色
                 const hue = Math.random() * 360;
                 const color = `hsl(${hue}, 100%, 60%)`;
                 
@@ -492,13 +687,11 @@
             }
 
             update() {
-                // 更新所有烟花
                 this.fireworks = this.fireworks.filter(firework => {
                     firework.update();
                     return !firework.isDead();
                 });
                 
-                // 自动模式
                 if (this.autoMode) {
                     const now = Date.now();
                     if (now - this.lastAutoLaunch > 1000 + Math.random() * 2000) {
@@ -509,11 +702,9 @@
             }
 
             draw() {
-                // 创建渐变背景效果
                 this.ctx.fillStyle = 'rgba(12, 12, 12, 0.1)';
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
                 
-                // 绘制所有烟花
                 this.fireworks.forEach(firework => firework.draw(this.ctx));
             }
 
@@ -536,10 +727,19 @@
             }
         }
 
+        // 全局变量
+        let fireworkManager;
+        let previewGenerator;
+        let shareImageURL = '';
+
         // 初始化应用
         document.addEventListener('DOMContentLoaded', function() {
             const canvas = document.getElementById('fireworksCanvas');
-            const fireworkManager = new FireworkManager(canvas);
+            fireworkManager = new FireworkManager(canvas);
+            previewGenerator = new PreviewGenerator();
+            
+            // 生成分享预览图
+            generateShareImage();
             
             // 按钮事件
             document.getElementById('launchBtn').addEventListener('click', () => {
@@ -572,6 +772,25 @@
             }, 1000);
         });
 
+        // 生成分享预览图
+        async function generateShareImage() {
+            try {
+                shareImageURL = await previewGenerator.generatePreview();
+                
+                // 更新meta标签
+                document.getElementById('shareImage').setAttribute('content', shareImageURL);
+                document.getElementById('twitterImage').setAttribute('content', shareImageURL);
+                
+                // 更新URL
+                const currentURL = window.location.href;
+                document.querySelector('meta[property="og:url"]').setAttribute('content', currentURL);
+                
+                console.log('分享预览图生成成功');
+            } catch (error) {
+                console.error('生成分享预览图失败:', error);
+            }
+        }
+
         // 显示提示信息
         function showToast(message) {
             const toast = document.getElementById('toast');
@@ -584,37 +803,47 @@
 
         // 微信分享功能
         function shareToWeChat() {
-            // 检查是否在微信环境中
             const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
             
             if (isWeChat) {
-                // 在微信中，使用微信JS-SDK
                 if (typeof wx !== 'undefined') {
                     wx.ready(function() {
-                        wx.updateAppMessageShareData({
+                        const shareData = {
                             title: '实时烟花燃放',
                             desc: '一起来欣赏美丽的烟花吧！点击屏幕燃放烟花',
                             link: window.location.href,
-                            imgUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+                            imgUrl: shareImageURL,
                             success: function() {
                                 showToast('分享设置成功！');
+                            },
+                            fail: function() {
+                                showToast('分享设置失败，请重试');
                             }
-                        });
+                        };
                         
+                        wx.updateAppMessageShareData(shareData);
                         wx.updateTimelineShareData({
                             title: '实时烟花燃放 - 一起来欣赏美丽的烟花吧！',
                             link: window.location.href,
-                            imgUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+                            imgUrl: shareImageURL,
                             success: function() {
                                 showToast('朋友圈分享设置成功！');
+                            },
+                            fail: function() {
+                                showToast('朋友圈分享设置失败，请重试');
                             }
                         });
                     });
+                    
+                    wx.error(function(res) {
+                        console.error('微信JS-SDK配置失败:', res);
+                        fallbackShare();
+                    });
                 } else {
-                    showToast('请在微信中打开此页面以使用分享功能');
+                    showToast('微信JS-SDK未加载，使用备用分享方式');
+                    fallbackShare();
                 }
             } else {
-                // 非微信环境，使用Web Share API或复制链接
                 if (navigator.share) {
                     navigator.share({
                         title: '实时烟花燃放',
@@ -623,12 +852,17 @@
                     }).then(() => {
                         showToast('分享成功！');
                     }).catch(() => {
-                        copyToClipboard();
+                        fallbackShare();
                     });
                 } else {
-                    copyToClipboard();
+                    fallbackShare();
                 }
             }
+        }
+
+        // 备用分享方法
+        function fallbackShare() {
+            copyToClipboard();
         }
 
         // 复制链接到剪贴板
@@ -673,12 +907,10 @@
             document.body.removeChild(textArea);
         }
 
-        // 微信JS-SDK配置（需要后端支持）
+        // 微信JS-SDK配置
         function initWeChatSDK() {
             // 这里需要从后端获取微信JS-SDK的配置信息
-            // 包括appId, timestamp, nonceStr, signature等
-            // 由于这是前端示例，这里提供配置模板
-            
+            // 实际部署时需要配置正确的参数
             /*
             wx.config({
                 debug: false,
@@ -698,6 +930,19 @@
         if (/MicroMessenger/i.test(navigator.userAgent)) {
             initWeChatSDK();
         }
+
+        // 防止页面缩放
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('gesturechange', function(e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('gestureend', function(e) {
+            e.preventDefault();
+        });
     </script>
 </body>
 </html>
